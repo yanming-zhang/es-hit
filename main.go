@@ -78,19 +78,23 @@ func main() {
 	isStarted := graphiteWorker.IsStarted
 
 	go func(conn net.Conn, isStarted bool) {
-		if isStarted {
-			for {
-				fmt.Fprintf(conn, "health_check\n")
-				_, err := bufio.NewReader(conn).ReadString('\n')
-				if err != nil {
-					conn.Close()
-					conn = nil
-					log.Fatalf("The current connection is invalid, now reconnect, %v", err)
-					graphiteWorker = graphite.NewWorker(conf.Graphite)
-				}
-				time.Sleep(15 * time.Second)
+		for {
+			if !isStarted {
+				continue
 			}
+
+			fmt.Fprintf(conn, "health_check\n")
+			_, err := bufio.NewReader(conn).ReadString('\n')
+			if err != nil {
+				conn.Close()
+				conn = nil
+				log.Fatalf("The current connection is invalid, now reconnect, %v", err)
+				graphiteWorker = graphite.NewWorker(conf.Graphite)
+			}
+
+			time.Sleep(15 * time.Second)
 		}
+
 	}(currConn, isStarted)
 
 	var mainWg sync.WaitGroup
