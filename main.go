@@ -63,20 +63,24 @@ func main() {
 	graphiteWorker = graphite.NewWorker(conf.Graphite)
 	ctx, cancel := context.WithCancel(context.Background())
 
+	currConn := graphiteWorker.GetConn()
+	isStarted := graphiteWorker.IsStarted
+
 	// Waiting for Program Inerrupt
 	go func() {
 		select {
 		case <-signalCh:
 			cancel()
+		case <-graphiteWorker.StatusCh:
+			currConn.Close()
+			currConn = nil
+			graphiteWorker = graphite.NewWorker(conf.Graphite)
 		case <-ctx.Done():
 			log.Infof("Parent ctx done %v", ctx.Err())
 		}
 	}()
 
 	// connection health check
-	currConn := graphiteWorker.GetConn()
-	isStarted := graphiteWorker.IsStarted
-
 	go func(conn net.Conn, isStarted bool) {
 		for {
 			if !isStarted {

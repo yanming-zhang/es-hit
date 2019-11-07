@@ -20,6 +20,7 @@ type Worker struct {
 	config    Config
 	graphite  *graphite.Graphite
 	IsStarted bool
+	StatusCh  chan bool
 }
 
 // NewWorker create a new worker
@@ -37,8 +38,12 @@ func NewWorker(config Config) *Worker {
 func (w *Worker) DoSend(path string, value float64) {
 	key := fmt.Sprintf("%s.%s.count", w.config.Prefix, path)
 	log.Debugf("Graphite do send : %s with value: %s", key, fmt.Sprint(value))
+
 	if err := w.graphite.SimpleSend(key, fmt.Sprint(value)); err != nil {
 		log.Warnf("Failed to do Graphite send : %v", err)
+		if w.graphite.GetNetconn() != nil {
+			w.StatusCh <- true
+		}
 	}
 }
 
