@@ -11,7 +11,10 @@ require (
 	github.com/olivere/elastic v6.2.19+incompatible
 	github.com/pkg/errors v0.8.2-0.20190227000051-27936f6d90f9
 	github.com/sirupsen/logrus v1.4.2
+<<<<<<< HEAD
 	github.com/yanming-zhang/graphite-golang v0.0.0-20191107055851-4b0d540d2114
+=======
+>>>>>>> 51113bf26d6db66283bbd6b0e1acc6ece99781b3
 	gopkg.in/olivere/elastic.v5 v5.0.81
 	gopkg.in/olivere/elastic.v6 v6.2.26
 )

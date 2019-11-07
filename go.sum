@@ -22,8 +22,11 @@ github.com/sirupsen/logrus v1.4.2/go.mod h1:tLMulIdttU9McNUspp0xgXVQah82FyeX6Mwd
 github.com/smartystreets/go-aws-auth v0.0.0-20180515143844-0c1422d1fdb9/go.mod h1:SnhjPscd9TpLiy1LpzGSKh3bXCfxxXuqd9xmQJy3slM=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
+<<<<<<< HEAD
 github.com/yanming-zhang/graphite-golang v0.0.0-20191107055851-4b0d540d2114 h1:9dPAApAzPGoobhiDtKeKSiCU8xLAyrTXlQLH4ESYrJI=
 github.com/yanming-zhang/graphite-golang v0.0.0-20191107055851-4b0d540d2114/go.mod h1:Htd8TbfuM1uS2u7y8P/nwiLct8Ot+cEe+thwcq3Da2A=
+=======
+>>>>>>> 51113bf26d6db66283bbd6b0e1acc6ece99781b3
 golang.org/x/sys v0.0.0-20190422165155-953cdadca894 h1:Cz4ceDQGXuKRnVBDTS23GTn/pU5OE2C0WrNTOYK1Uuc=
 golang.org/x/sys v0.0.0-20190422165155-953cdadca894/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 gopkg.in/olivere/elastic.v5 v5.0.81/go.mod h1:uhHoB4o3bvX5sorxBU29rPcmBQdV2Qfg0FBrx5D6pV0=

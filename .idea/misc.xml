@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
   <component name="CssXFireSettings">
     <general autoClear="false" autoExpand="false" />
     <strategy useRoutes="false" mediaReduce="false" fileReduce="false" currentDocumentsReduce="false" resolveVariables="true" resolveMixins="true" />
     <routes />
   </component>
+=======
+>>>>>>> 51113bf26d6db66283bbd6b0e1acc6ece99781b3
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
