@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
-
 	elastic "gopkg.in/olivere/elastic.v6"
 )
 

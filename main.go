@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"sync"
@@ -38,9 +41,9 @@ func init() {
 }
 
 var conf config
+var graphiteWorker *graphite.Worker
 
 func main() {
-
 	if verbose {
 		log.SetLevel(log.DebugLevel)
 	}
@@ -58,7 +61,7 @@ func main() {
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 
-	graphiteWorker := graphite.NewWorker(conf.Graphite)
+	graphiteWorker = graphite.NewWorker(conf.Graphite)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Waiting for Program Inerrupt
@@ -70,12 +73,28 @@ func main() {
 			log.Infof("Parent ctx done %v", ctx.Err())
 		}
 	}()
+
+	currConn := graphiteWorker.GetConn()
+
+	go func(conn net.Conn) {
+		for {
+			fmt.Fprintf(conn, "health_check\n")
+			_, err := bufio.NewReader(conn).ReadString('\n')
+			if err != nil {
+				conn.Close()
+				conn = nil
+				log.Fatalf("The current connect is invalid, now reconnect, %v", err)
+				graphiteWorker = graphite.NewWorker(conf.Graphite)
+			}
+			time.Sleep(15 * time.Second)
+		}
+	}(currConn)
+
 	var mainWg sync.WaitGroup
 	mainWg.Add(2)
 	go staticWorker(ctx, &mainWg, graphiteWorker)
 	go kibanaWorker(ctx, &mainWg, graphiteWorker)
 	mainWg.Wait()
-
 }
 
 // Search for static rules

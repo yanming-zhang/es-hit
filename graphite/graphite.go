@@ -2,9 +2,10 @@ package graphite
 
 import (
 	"fmt"
+	"net"
 
-	"github.com/marpaia/graphite-golang"
 	log "github.com/sirupsen/logrus"
+	"github.com/yanming-zhang/graphite-golang"
 )
 
 // Config for Graphite
@@ -27,6 +28,7 @@ func NewWorker(config Config) *Worker {
 	if err != nil {
 		log.Fatalf("Failed to make graphite instance: %v", err)
 	}
+
 	return &Worker{config: config, graphite: newGraphite}
 }
 
@@ -37,4 +39,8 @@ func (w *Worker) DoSend(path string, value float64) {
 	if err := w.graphite.SimpleSend(key, fmt.Sprint(value)); err != nil {
 		log.Warnf("Failed to do Graphite send : %v", err)
 	}
+}
+
+func (w Worker) GetConn() net.Conn {
+	return w.graphite.GetNetconn()
 }
