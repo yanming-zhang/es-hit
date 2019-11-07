@@ -17,8 +17,9 @@ type Config struct {
 
 // Worker for sending metric
 type Worker struct {
-	config   Config
-	graphite *graphite.Graphite
+	config    Config
+	graphite  *graphite.Graphite
+	IsStarted bool
 }
 
 // NewWorker create a new worker
@@ -29,7 +30,7 @@ func NewWorker(config Config) *Worker {
 		log.Fatalf("Failed to make graphite instance: %v", err)
 	}
 
-	return &Worker{config: config, graphite: newGraphite}
+	return &Worker{config: config, graphite: newGraphite, IsStarted: true}
 }
 
 // DoSend the metrics

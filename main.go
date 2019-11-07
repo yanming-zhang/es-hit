@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -16,8 +17,6 @@ import (
 	"github.com/leyantech/es-hit/kibana"
 	"github.com/leyantech/es-hit/staticrule"
 	log "github.com/sirupsen/logrus"
-
-	"flag"
 )
 
 type config struct {
@@ -74,21 +73,25 @@ func main() {
 		}
 	}()
 
+	// connection health check
 	currConn := graphiteWorker.GetConn()
+	isStarted := graphiteWorker.IsStarted
 
-	go func(conn net.Conn) {
-		for {
-			fmt.Fprintf(conn, "health_check\n")
-			_, err := bufio.NewReader(conn).ReadString('\n')
-			if err != nil {
-				conn.Close()
-				conn = nil
-				log.Fatalf("The current connection is invalid, now reconnect, %v", err)
-				graphiteWorker = graphite.NewWorker(conf.Graphite)
+	go func(conn net.Conn, isStarted bool) {
+		if isStarted {
+			for {
+				fmt.Fprintf(conn, "health_check\n")
+				_, err := bufio.NewReader(conn).ReadString('\n')
+				if err != nil {
+					conn.Close()
+					conn = nil
+					log.Fatalf("The current connection is invalid, now reconnect, %v", err)
+					graphiteWorker = graphite.NewWorker(conf.Graphite)
+				}
+				time.Sleep(15 * time.Second)
 			}
-			time.Sleep(15 * time.Second)
 		}
-	}(currConn)
+	}(currConn, isStarted)
 
 	var mainWg sync.WaitGroup
 	mainWg.Add(2)
