@@ -82,7 +82,6 @@ func main() {
 			if !isStarted {
 				continue
 			}
-
 			fmt.Fprintf(conn, "health_check\n")
 			_, err := bufio.NewReader(conn).ReadString('\n')
 			if err != nil {
@@ -91,10 +90,8 @@ func main() {
 				log.Fatalf("The current connection is invalid, now reconnect, %v", err)
 				graphiteWorker = graphite.NewWorker(conf.Graphite)
 			}
-
 			time.Sleep(15 * time.Second)
 		}
-
 	}(currConn, isStarted)
 
 	var mainWg sync.WaitGroup
