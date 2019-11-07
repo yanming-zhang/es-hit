@@ -83,7 +83,7 @@ func main() {
 			if err != nil {
 				conn.Close()
 				conn = nil
-				log.Fatalf("The current connect is invalid, now reconnect, %v", err)
+				log.Fatalf("The current connection is invalid, now reconnect, %v", err)
 				graphiteWorker = graphite.NewWorker(conf.Graphite)
 			}
 			time.Sleep(15 * time.Second)
