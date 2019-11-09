@@ -39,8 +39,14 @@ func init() {
 	flag.Parse()
 }
 
-var conf config
-var graphiteWorker *graphite.Worker
+var (
+	conf           config
+	graphiteWorker *graphite.Worker
+	workerCh       = make(chan *graphite.Worker)
+
+	currConn  net.Conn
+	isStarted bool
+)
 
 func main() {
 	if verbose {
@@ -60,11 +66,10 @@ func main() {
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt, syscall.SIGTERM)
 
-	graphiteWorker = graphite.NewWorker(conf.Graphite)
-	ctx, cancel := context.WithCancel(context.Background())
+	go graphite.NewWorker(conf.Graphite, workerCh)
+	graphiteWorker, _ = <-workerCh
 
-	currConn := graphiteWorker.GetConn()
-	isStarted := graphiteWorker.IsStarted
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// Waiting for Program Inerrupt
 	go func() {
@@ -74,35 +79,60 @@ func main() {
 		case <-graphiteWorker.StatusCh:
 			currConn.Close()
 			currConn = nil
-			graphiteWorker = graphite.NewWorker(conf.Graphite)
+			go graphite.NewWorker(conf.Graphite, workerCh)
+			graphiteWorker, _ = <-workerCh
+			currConn = graphiteWorker.GetConn()
+			isStarted = graphiteWorker.IsStarted
 		case <-ctx.Done():
 			log.Infof("Parent ctx done %v", ctx.Err())
 		}
 	}()
 
-	// connection health check
-	go func(conn net.Conn, isStarted bool) {
-		for {
-			if !isStarted {
-				continue
-			}
-			fmt.Fprintf(conn, "health_check\n")
-			_, err := bufio.NewReader(conn).ReadString('\n')
-			if err != nil {
-				conn.Close()
-				conn = nil
-				log.Fatalf("The current connection is invalid, now reconnect, %v", err)
-				graphiteWorker = graphite.NewWorker(conf.Graphite)
-			}
-			time.Sleep(15 * time.Second)
-		}
-	}(currConn, isStarted)
+	currConn = graphiteWorker.GetConn()
+	isStarted = graphiteWorker.IsStarted
+	go healthCheck(currConn, isStarted)
 
 	var mainWg sync.WaitGroup
 	mainWg.Add(2)
 	go staticWorker(ctx, &mainWg, graphiteWorker)
 	go kibanaWorker(ctx, &mainWg, graphiteWorker)
 	mainWg.Wait()
+}
+
+// connection health check
+func healthCheck(conn net.Conn, isStarted bool) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("The healthcheck panic and restore, %v", err)
+		}
+	}()
+
+	for {
+		if !isStarted {
+			continue
+		}
+
+		if conn != nil {
+			fmt.Fprintf(conn, "health_check\n")
+			_, err := bufio.NewReader(conn).ReadString('\n')
+			if err != nil {
+				conn.Close()
+				conn = nil
+				log.Errorf("The current connection is dead, %v", err)
+				goto Loop
+			}
+			time.Sleep(15 * time.Second)
+			continue
+		}
+		log.Error("The current connection socket is null")
+
+	Loop:
+		graphite.NewWorker(conf.Graphite, workerCh)
+		graphiteWorker, _ = <-workerCh
+		currConn = graphiteWorker.GetConn()
+		isStarted = graphiteWorker.IsStarted
+		time.Sleep(15 * time.Second)
+	}
 }
 
 // Search for static rules

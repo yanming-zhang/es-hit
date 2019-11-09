@@ -24,14 +24,37 @@ type Worker struct {
 }
 
 // NewWorker create a new worker
-func NewWorker(config Config) *Worker {
+// func NewWorker(config Config) *Worker {
+// 	defer func() {
+// 		if err := recover(); err != nil {
+// 			log.Fatalf("The application panic and restore, %v", err)
+// 		}
+// 	}()
+
+// 	log.Infof("NewWorker Loaded Graphite connection: %#v", config)
+// 	newGraphite, err := graphite.NewGraphite(config.Host, config.Port)
+// 	if err != nil {
+// 		log.Fatalf("Failed to make graphite instance: %v", err)
+// 	}
+
+// 	return &Worker{config: config, graphite: newGraphite, IsStarted: true}
+// }
+
+func NewWorker(config Config, workerCh chan<- *Worker) {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("The worker panic and restore, %v", err)
+		}
+	}()
+
 	log.Infof("NewWorker Loaded Graphite connection: %#v", config)
 	newGraphite, err := graphite.NewGraphite(config.Host, config.Port)
 	if err != nil {
 		log.Fatalf("Failed to make graphite instance: %v", err)
 	}
 
-	return &Worker{config: config, graphite: newGraphite, IsStarted: true}
+	workerCh <- &Worker{config: config, graphite: newGraphite, IsStarted: true}
+	close(workerCh)
 }
 
 // DoSend the metrics
