@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/leyantech/es-hit/graphite"
-	"github.com/leyantech/es-hit/kibana"
-	"github.com/leyantech/es-hit/staticrule"
 	log "github.com/sirupsen/logrus"
+	"github.com/yanming-zhang/es-hit/graphite"
+	"github.com/yanming-zhang/es-hit/kibana"
+	"github.com/yanming-zhang/es-hit/staticrule"
 )
 
 type config struct {

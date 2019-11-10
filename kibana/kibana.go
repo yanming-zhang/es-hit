@@ -9,7 +9,7 @@ import (
 	"time"
 
 	simplejson "github.com/bitly/go-simplejson"
-	"github.com/leyantech/es-hit/graphite"
+	"github.com/yanming-zhang/es-hit/graphite"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/olivere/elastic"

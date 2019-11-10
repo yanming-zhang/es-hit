@@ -1,4 +1,4 @@
-module github.com/leyantech/es-hit
+module github.com/yanming-zhang/es-hit
 
 go 1.13
 
@@ -9,6 +9,6 @@ require (
 	github.com/olivere/elastic v6.2.26+incompatible
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/yanming-zhang/graphite-golang v0.0.0-20191107081459-5b791d9eb242
+	github.com/yanming-zhang/graphite-golang v0.0.0-20191107084832-7f8bbab8e208
 	gopkg.in/olivere/elastic.v6 v6.2.26
 )
